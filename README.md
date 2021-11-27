@@ -38,7 +38,7 @@ Install the HAProxy and Gunicorn servers by running the following commands:
     ### To start the gunicorn servers, type:
         foreman start
     
-6. The application will run on four different ports (5000, 5100, 5200, 5300). The application can be tested using HTTPie. 
+6. The application will run on six different ports (5000, 5100, 5200, 5300, 5400, 5500). The application can be tested using HTTPie. 
 
 7. Example CURL/HTTPIE Commands to run:
     ### User_API:
@@ -60,11 +60,44 @@ Install the HAProxy and Gunicorn servers by running the following commands:
         localhost:5100/home/timeline?username=Chaney
         localhost:5100/public/timeline
  
-8. Configure 3 timeline services and 1 user service for th 
+8. Configure 3 timeline services and 1 user service. 
 
+9. Add the new like service using Redis 
+
+    * /like 
+        - POST method take in the username and the postname (postID)
+        - have a counter to increase the number of likes in a particular post 
+         
+    * /getPostLikes  
+        - GET method take in the postname (postID)
+        - return the number of like a post have  
+    
+    * /getUserLikes 
+        - GET method return all the postnames (postIDs) that a specific user has liked 
+    
+    * /getPopularPosts
+        - GET method return the 5 most popular posts. 
+
+10. Add the new Poll service using DynamoDB 
+
+    * /createPoll
+        - POST method: takes in username (unique) of the creator, question, and response(s)1-4
+        - returns a poll object in dynamodb
+        - ex) {"createdBy": "someone", "question": "A question", "res1": "yes","res2": "no","res3": "","res4": ""}
+        - note: the pollID generated is from epoch, and you must use this to vote 
+
+    * /vote
+        - POST method: takes a username (unique) pollID, the username of the person who created the poll, and answer 
+        - creates a vote, incrementing a voteCounter for each postID
+        - returns json of vote information
+        - ex) {"username": "you", "pollID": [pollID], "createdBy": "someone", "answer": "yes"}
+
+    * /getPoll
+        - GET method: takes in a pollID and creator of poll
+        - returns json of desired poll
+        - ex) {"pollID": [pollID], "createdBy": "someone"}
+        
 ## Notes About Project:
     * When inputting, everything is case sensitive
     * For grading purposes: We have failed to implement
-        1. Timeline display in reverse chronological order
-        2. Two independent databases (We only have one) for each API
-        3. An initialization script for the database (CSV/Schema)
+        1. Service Registry Implementation
